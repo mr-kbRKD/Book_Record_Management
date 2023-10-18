@@ -33,6 +33,25 @@ exports.getSingleBookByID = async (req, res)=>{
             data : book,
         });
     };
+exports.getBookByName = async (req, res)=>{
+        const { name } = req.params;
+        // console.log(name);
+        // using findOne() function
+        const book = await BookModal.findOne({
+            name : name,
+        });
+        if(!book){
+            return res.status(404).json({
+                success : false,
+                message : "Book is not found"
+            });
+        }
+    
+        return res.status(200).json({
+            success:true,
+            data : book,
+        });
+    };
 
 exports.getAllIssuedBooks = async (req, res)=>{
     const users = await UserModal.find({
@@ -54,3 +73,39 @@ exports.getAllIssuedBooks = async (req, res)=>{
             data : issuedBooks,
         });
 };
+
+
+exports.addNewBook = async (req, res)=>{
+    const { data } = req.body;
+    
+    if(!data){
+        return res.status(404).json({
+            success : false,
+            message : "No data provided for book",
+            });
+        }
+        await BookModal.create(data);
+        const allBooks = await BookModal.find();
+
+        return res.status(200).json({
+            success : true,
+            data : allBooks,
+        });
+        
+    };
+
+exports.updateBookByID = async(req, res)=>{
+    const { id } = req.params;
+    const { data } = req.body;
+
+    const updatedBook = await BookModal.findOneAndUpdate({
+        _id  : id,
+    }, data, {
+        // to fetch or get new data otherwise updates will reflect but show us old data(that's why its required)
+        new : true,
+    });
+    return res.status(200).json({
+        success : true,
+        data : updatedBook,
+    });
+}
